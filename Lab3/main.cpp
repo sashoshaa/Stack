@@ -10,8 +10,8 @@
 		s.Push(2);
 		//cout << s.Pop() << endl;
 		TCalc c;
-		c.SetInfix("(-9)+2");
-		c.ToPostfix();
+		c.SetInfix("-3+4");
+		c.ToPostfix() ;
 		double a = c.CalcPostfix();
 		cout << c.CalcPostfix() << endl;
 	return 0;
