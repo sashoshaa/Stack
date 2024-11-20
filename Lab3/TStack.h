@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <iostream>
 #include <vector>
 #include <set>
@@ -6,448 +7,387 @@
 #include <map>
 #include <math.h>
 #include <string>
+
 using namespace std;
 
-const int MAXS = 10000; // Максимальный размер стека.
+const int MAXS = 10000; // Максимальный размер стека
 
+// Шаблонный класс TStack (стек)
 template <class T>
-class TStack
-{
-	T* pMem;          // Указатель на массив для хранения элементов стека.
-	int MaxSize, Num; // MaxSize - максимальный размер стека, Num - текущий индекс вершины.
-public:
-	TStack(int _MaxSize = 10); // Конструктор инициализации.
-	~TStack();                // Деструктор.
-	TStack(const TStack& s);  // Конструктор копирования.
-	int GetSize() { return MaxSize; } // Возвращает размер стека.
-	int GetStartIndex() { return Num; } // Возвращает текущий индекс вершины.
-	TStack& operator=(const TStack<T> s); // Оператор присваивания.
-	bool operator==(const TStack& s) const; // Сравнение стеков (равенство).
-	bool operator!=(const TStack& s) const; // Сравнение стеков (неравенство).
-	T Pop();         // Удаление элемента из вершины стека.
-	void Push(T val); // Добавление элемента в стек.
-	bool Empty() const; // Проверка, пуст ли стек.
-	bool Full() const;  // Проверка, полон ли стек.
-	T Top() const;      // Возвращает элемент на вершине без удаления.
-	void Clear();       // Очищает стек.
-	bool Check(string str); // Проверяет правильность скобочной последовательности.
+class TStack {
+	T* pMem;            // Массив для хранения элементов стека
+	int MaxSize, Num;   // Максимальный размер стека и текущий индекс
 
-	// Перегрузка операторов ввода и вывода.
-	friend istream& operator>>(istream& in, TStack& s)
-	{
-		if (s.Full()) // Проверка на полноту стека.
+public:
+	TStack(int _MaxSize = 10);       // Конструктор
+	~TStack();                       // Деструктор
+	TStack(const TStack& s);         // Конструктор копирования
+	int GetSize() { return MaxSize; } // Получить размер стека
+	int GetStartIndex() { return Num; } // Получить текущий индекс
+	TStack& operator=(const TStack<T> s); // Оператор присваивания
+	bool operator==(const TStack& s) const; // Сравнение на равенство
+	bool operator!=(const TStack& s) const; // Сравнение на неравенство
+	T Pop();         // Извлечь элемент из стека
+	void Push(T val); // Добавить элемент в стек
+	bool Empty() const; // Проверка на пустоту
+	bool Full() const;  // Проверка на полноту
+	T Top() const;      // Посмотреть верхний элемент
+	void Clear();       // Очистить стек
+	bool Check(string str); // Проверка скобочной последовательности
+
+	// Ввод элемента в стек
+	friend istream& operator>>(istream& in, TStack& s) {
+		if (s.Full())
 			throw - 1;
 		Num++;
 		in >> s.pMem[s.Num];
 		return in;
 	}
 
-	friend ostream& operator<<(ostream& out, const TStack& s)
-	{
-		if (s.Empty()) // Проверка на пустоту стека.
+	// Вывод элемента из стека
+	friend ostream& operator<<(ostream& out, const TStack& s) {
+		if (s.Empty())
 			throw - 1;
 		out << s.pMem[s.Num];
 		return out;
 	}
 };
 
-// Реализация конструктора стека.
+
+// Конструктор с заданием максимального размера стека
 template <class T>
-TStack<T>::TStack(int _MaxSize)
-{
-	if (_MaxSize < 0 || _MaxSize > MAXS) // Проверка на корректный размер.
+TStack<T>::TStack(int _MaxSize) {
+	if (_MaxSize < 0 || _MaxSize > MAXS) // Проверка на корректный размер
 		throw - 1;
-	MaxSize = _MaxSize;   // Установка максимального размера.
-	Num = -1;             // Установка начального индекса (стек пустой).
-	pMem = new T[MaxSize]; // Выделение памяти под элементы.
+	MaxSize = _MaxSize; // Устанавливаем максимальный размер
+	Num = -1;           // Инициализируем стек как пустой
+	pMem = new T[MaxSize]; // Выделяем память под массив
 }
 
-// Реализация конструктора копирования.
+// Конструктор копирования
 template <class T>
-TStack<T>::TStack(const TStack<T>& s)
-{
-	if (s.MaxSize < 0 || s.MaxSize > MAXS || s.Num < -1 || s.Num >= s.MaxSize) // Проверка валидности.
+TStack<T>::TStack(const TStack<T>& s) {
+	if (s.MaxSize < 0 || s.MaxSize > MAXS || s.Num < -1 || s.Num >= s.MaxSize)
 		throw - 1;
-	MaxSize = s.MaxSize;
-	Num = s.Num;
-	pMem = new T[MaxSize]; // Выделение памяти.
-	for (int i = 0; i <= Num; i++)
-		pMem[i] = s.pMem[i]; // Копирование элементов.
+	MaxSize = s.MaxSize; // Копируем размер
+	Num = s.Num;         // Копируем индекс верхнего элемента
+	pMem = new T[MaxSize]; // Выделяем память
+	for (int i = 0; i <= Num; i++) // Копируем элементы
+		pMem[i] = s.pMem[i];
 }
 
-// Деструктор освобождает выделенную память.
+// Деструктор: освобождаем память
 template <class T>
-TStack<T>::~TStack()
-{
-	delete[] pMem;
+TStack<T>::~TStack() {
+	delete[] pMem; // Удаляем массив
 }
 
-// Реализация оператора присваивания.
+// Оператор присваивания
 template <class T>
-TStack<T>& TStack<T>::operator=(const TStack<T> s)
-{
-	if (this == &s) // Проверка присваивания самому себе.
+TStack<T>& TStack<T>::operator=(const TStack<T> s) {
+	if (this == &s) // Проверка на самоприсваивание
 		return *this;
-	if (MaxSize != s.MaxSize) // Если размеры стеков различны, перевыделяем память.
-	{
+	if (MaxSize != s.MaxSize) { // Если размеры разные, перевыделяем память
 		MaxSize = s.MaxSize;
 		delete[] pMem;
 		pMem = new T[MaxSize];
 	}
-	Num = s.Num;
-	for (int i = 0; i <= Num; i++)
-		pMem[i] = s.pMem[i]; // Копируем элементы.
+	Num = s.Num; // Копируем индекс
+	for (int i = 0; i <= Num; i++) // Копируем элементы
+		pMem[i] = s.pMem[i];
 	return *this;
 }
 
-// Реализация оператора сравнения (равно).
+// Оператор сравнения на равенство
 template <class T>
-bool TStack<T>::operator==(const TStack& s) const
-{
-	if (this == &s) // Если сравниваем с самим собой, возвращаем true.
+bool TStack<T>::operator==(const TStack& s) const {
+	if (this == &s) // Если сравниваем с самим собой
 		return true;
-	if (MaxSize != s.MaxSize || Num != s.Num) // Сравниваем размеры и количество элементов.
+	if (MaxSize != s.MaxSize || Num != s.Num) // Сравниваем размеры и индексы
 		return false;
-	for (int i = 0; i <= Num; i++)
-	{
-		if (pMem[i] != s.pMem[i]) // Сравниваем элементы по индексам.
+	for (int i = 0; i <= Num; i++) { // Сравниваем элементы
+		if (pMem[i] != s.pMem[i])
 			return false;
 	}
 	return true;
 }
 
-// Реализация оператора сравнения (не равно).
+// Оператор сравнения на неравенство
 template <class T>
-bool TStack<T>::operator!=(const TStack& s) const
-{
-	return !(*this == s);
+bool TStack<T>::operator!=(const TStack& s) const {
+	return !(*this == s); // Используем оператор равенства
 }
 
-// Проверка на пустоту стека.
+// Проверка: пуст ли стек
 template <class T>
-bool TStack<T>::Empty() const
-{
-	return Num == -1;
+bool TStack<T>::Empty() const {
+	return Num == -1; // Если индекс -1, стек пуст
 }
 
-// Проверка на полноту стека.
+// Проверка: полон ли стек
 template <class T>
-bool TStack<T>::Full() const
-{
-	return Num == MaxSize - 1;
+bool TStack<T>::Full() const {
+	return Num == MaxSize - 1; // Если индекс равен размеру - 1, стек полон
 }
 
-// Извлечение элемента из стека.
+// Удаление элемента с вершины стека
 template <class T>
-T TStack<T>::Pop()
-{
-	if (Empty()) // Если стек пуст, бросаем исключение.
+T TStack<T>::Pop() {
+	if (Empty()) // Если стек пуст, ошибка
 		throw - 1;
-	return pMem[Num--]; // Возвращаем элемент и уменьшаем индекс.
+	return pMem[Num--]; // Возвращаем элемент и уменьшаем индекс
 }
 
-// Добавление элемента в стек.
+// Добавление элемента на вершину стека
 template <class T>
-void TStack<T>::Push(T val)
-{
-	if (Full()) // Если стек полон, бросаем исключение.
+void TStack<T>::Push(T val) {
+	if (Full()) // Если стек полон, ошибка
 		throw - 1;
-	pMem[++Num] = val; // Увеличиваем индекс и добавляем элемент.
+	pMem[++Num] = val; // Увеличиваем индекс и добавляем элемент
 }
 
-// Просмотр элемента на вершине стека.
+// Получение верхнего элемента без удаления
 template <class T>
-T TStack<T>::Top() const
-{
-	if (Empty()) // Если стек пуст, бросаем исключение.
+T TStack<T>::Top() const {
+	if (Empty()) // Если стек пуст, ошибка
 		throw - 1;
-	return pMem[Num];
+	return pMem[Num]; // Возвращаем верхний элемент
 }
 
-// Очистка стека.
+// Очистка стека
 template <class T>
-void TStack<T>::Clear()
-{
-	Num = -1; // Устанавливаем индекс в -1.
+void TStack<T>::Clear() {
+	Num = -1; // Устанавливаем индекс в -1, делая стек пустым
 }
 
-// Проверка правильности скобочной последовательности.
+// Проверка правильности скобочной последовательности
 template <class T>
-bool TStack<T>::Check(string str)
-{
-	TStack<char> s; // Временный стек для проверки.
-	for (char ch : str)
-	{
-		if (ch == '(')
-			s.Push('('); // Если открывающая скобка, добавляем в стек.
-		else if (ch == ')')
-		{
-			if (s.Empty()) // Если стек пуст, последовательность некорректна.
-				return false;
-			s.Pop(); // Удаляем открывающую скобку.
+bool TStack<T>::Check(string str) {
+	TStack<char> s; // Вспомогательный стек
+	for (char ch : str) {
+		if (ch == '(') // Если открывающая скобка, добавляем в стек
+			s.Push('(');
+		else if (ch == ')') { // Если закрывающая, проверяем стек
+			if (s.Empty())
+				return false; // Если стек пуст, последовательность некорректна
+			s.Pop(); // Убираем последнюю открывающую скобку
 		}
 	}
-	return s.Empty(); // Если стек пустой, последовательность корректна.
+	return s.Empty(); // Если стек пуст, последовательность корректна
 }
 
-// Класс для работы с вычислениями в инфиксной и постфиксной нотации.
-class TCalc
-{
-	string infix;       // Инфиксная запись выражения.
-	string postfix;     // Постфиксная запись выражения.
-	TStack<double> StNum; // Стек для чисел.
-	TStack<char> StChar;  // Стек для операторов.
+
+// Класс TCalc для вычисления выражений
+class TCalc {
+	string infix;     // Инфиксное выражение
+	string postfix;   // Постфиксное выражение
+	TStack<double> StNum; // Стек для чисел
+	TStack<char> StChar;  // Стек для операций
+
 public:
-	TCalc(); // Конструктор.
-	void SetInfix(string _infix) { infix = _infix; }   // Установка инфиксной записи.
-	void SetPostfix(string _postfix) { postfix = _postfix; } // Установка постфиксной записи.
-	string GetInfix() { return infix; } // Получение инфиксной записи.
-	string GetPostfix() { return postfix; } // Получение постфиксной записи.
-	void ToPostfix(); // Преобразование в постфиксную нотацию.
-	double CalcPostfix(); // Вычисление значения постфиксного выражения.
-	double Calc();        // Вычисление значения инфиксного выражения.
-	int Prior(char op);   // Приоритет операций.
+	TCalc();
+	void SetInfix(string _infix) { infix = _infix; }
+	void SetPostfix(string _postfix) { postfix = _postfix; }
+	string GetInfix() { return infix; }
+	string GetPostfix() { return postfix; }
+	void ToPostfix();         // Преобразование в постфикс
+	double CalcPostfix();     // Вычисление постфиксного выражения
+	double Calc();            // Вычисление инфиксного выражения
+	int Prior(char op);       // Приоритет операции
 };
 
-// Реализация конструктора `TCalc`.
-TCalc::TCalc()
-{
-	StNum = TStack<double>(MAXS);
-	StChar = TStack<char>(MAXS);
-}
+// Реализация методов TCalc
+TCalc::TCalc() : StNum(MAXS), StChar(MAXS) {}
 
-// Реализация метода для приоритета операций.
-int TCalc::Prior(char op)
-{
+int TCalc::Prior(char op) {
 	if (op == '+' || op == '-')
 		return 1;
 	else if (op == '*' || op == '/')
 		return 2;
 	else if (op == '^')
 		return 3;
-	else
-		return 0;
+	return 0;
 }
 double TCalc::CalcPostfix() {
-	// Очистка стеков перед вычислением.
-	StNum.Clear();  // Очистка стека чисел.
-	StChar.Clear(); // Очистка стека операторов.
-
-	// Проходим по всем символам постфиксной записи.
+	StNum.Clear();
+	string number = "";
 	for (int i = 0; i < postfix.length(); i++) {
-		// Обработка отрицательных чисел (к примеру, "-3").
-		if (i > 0 && postfix[i] >= '0' && postfix[i] <= '9' && postfix[i - 1] == '_') {
-			// Если текущий символ является цифрой, а предыдущий символ является "_",
-			// то это означает, что перед числом был знак минус.
-			StNum.Push((postfix[i] - '0') * (-1)); // Помещаем отрицательное число в стек.
+		if (postfix[i] >= '0' && postfix[i] <= '9' || postfix[i] == '.' || postfix[i] == '_') {
+			if (postfix[i] == '_') { // Обработка отрицательного числа
+				number += '-';
+			}
+			else {
+				number += postfix[i];
+			}
 		}
-		// Обработка обычных положительных чисел.
-		else if (postfix[i] >= '0' && postfix[i] <= '9') {
-			// Если символ является цифрой, добавляем его в стек.
-			StNum.Push(postfix[i] - '0');
+		else if (postfix[i] == ' ' && !number.empty()) {
+			// Когда число завершено, преобразуем его в double
+			StNum.Push(stod(number));
+			number = "";
 		}
-		// Обработка операторов.
 		else if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/' || postfix[i] == '^') {
-			// Когда встречается оператор, извлекаем два числа из стека для вычислений.
-			double Num2 = StNum.Pop();  // Извлекаем второе число.
-			double Num1 = StNum.Pop();  // Извлекаем первое число.
-
-			// В зависимости от оператора выполняем нужную операцию.
+			double Num2 = StNum.Pop();
+			double Num1 = StNum.Pop();
 			if (postfix[i] == '+') {
-				StNum.Push(Num1 + Num2); // Сложение.
+				StNum.Push(Num1 + Num2);
 			}
-			if (postfix[i] == '-') {
-				StNum.Push(Num1 - Num2); // Вычитание.
+			else if (postfix[i] == '-') {
+				StNum.Push(Num1 - Num2);
 			}
-			if (postfix[i] == '*') {
-				StNum.Push(Num1 * Num2); // Умножение.
+			else if (postfix[i] == '*') {
+				StNum.Push(Num1 * Num2);
 			}
-			if (postfix[i] == '/') {
-				// Проверка на деление на 0.
-				if (Num2 == 0) {
-					throw - 1; // Исключение при делении на ноль.
-				}
-				StNum.Push(Num1 / Num2); // Деление.
+			else if (postfix[i] == '/') {
+				if (Num2 == 0) throw - 1; // Деление на ноль
+				StNum.Push(Num1 / Num2);
 			}
-			if (postfix[i] == '^') {
-				// Проверка на отрицательные степени для отрицательных чисел.
-				int p = pow(Num2, -1);  // Вычисление обратной степени.
-				if (p % 2 == 0 && Num1 < 0) {
-					throw - 1; // Исключение, если пытаемся возвести отрицательное число в нецелую степень.
-				}
-				StNum.Push(pow(Num1, Num2)); // Возведение в степень.
+			else if (postfix[i] == '^') {
+				StNum.Push(pow(Num1, Num2));
 			}
 		}
 	}
-
-	// В конце должен остаться один элемент в стеке, это и будет результат.
-	int a = StNum.Pop();  // Извлекаем результат из стека.
-
-	// Если в стеке остались еще элементы, это означает ошибку.
-	if (StNum.Empty() == 0) {
-		throw - 1; // Исключение, если стек не пуст.
+	if (!number.empty()) { // Если осталось число в конце
+		StNum.Push(stod(number));
 	}
-
-	return a;  // Возвращаем результат.
+	double a = StNum.Pop();
+	if (!StNum.Empty()) {
+		throw - 1; // Некорректное выражение
+	}
+	return a;
 }
 
 void TCalc::ToPostfix() {
-	postfix = ""; // Очистка строки
-	StChar.Clear(); // Очистка стека операторов.
-	string s = "(" + infix + ")"; // Окружение скобками для удобства 
-
-	// Проверка корректности входного выражения infix 
+	postfix = "";
+	StChar.Clear();
+	string s = "(" + infix + ")";
 	if (!StChar.Check(infix)) {
-		throw - 1; // Исключение в случае ошибки 
+		throw - 1;
 	}
 
-	
 	for (int i = 0; i < s.length(); i++) {
-		// Если символ — открывающая скобка, помещаем её в стек 
-		if (s[i] == '(')
+		if (s[i] == '(') {
 			StChar.Push(s[i]);
-		// Если перед открывающей скобкой идет знак минус, это означает отрицательное число (унарныцй минус)
-		else if (s[i - 1] == '(' && s[i] == '-')
-			postfix += '_';  // Добавляем знак подчеркивания для представления отрицательного числа.
-		// Если символ является цифрой или точкой (часть числа), добавляем его в постфиксную запись.
-		else if (s[i] <= '9' && s[i] >= '0' || s[i] == '.') {
-			postfix += s[i];
 		}
-		// Если символ ), то  начинаем извлечение операторов из стека до открывающей скобки
+		else if (s[i - 1] == '(' && s[i] == '-') {
+			postfix += "_"; // Отметить начало отрицательного числа
+		}
+		else if ((s[i] >= '0' && s[i] <= '9') || s[i] == '.') {
+			while (i < s.length() && ((s[i] >= '0' && s[i] <= '9') || s[i] == '.')) {
+				postfix += s[i];
+				i++;
+			}
+			i--; // Вернуть указатель назад
+			postfix += ' '; // Разделяем числа пробелом
+		}
 		else if (s[i] == ')') {
-			char a = StChar.Pop(); // Извлекаем оператор 
-			while (a != '(') { 
-				postfix += a; // Добавляем оператор в постф
-				a = StChar.Pop(); 
+			while (!StChar.Empty() && StChar.Top() != '(') {
+				postfix += StChar.Pop();
+				postfix += ' ';
+			}
+			if (!StChar.Empty()) {
+				StChar.Pop(); // Убираем '('
 			}
 		}
-		
 		else if (s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/' || s[i] == '^') {
-			
-			// извлекаем операторы из стека и добавляем их в постфикс.
-			while (Prior(StChar.Top()) >= Prior(s[i]))
+			while (!StChar.Empty() && Prior(StChar.Top()) >= Prior(s[i])) {
 				postfix += StChar.Pop();
-			// Добавляем текущий оператор в стек.
+				postfix += ' ';
+			}
 			StChar.Push(s[i]);
 		}
-		else {
-			throw - 1; // Исключение в случае некорректного символа
-		}
 	}
-
-	// Если в стеке остались операторы, извлекаем их и добавляем в постф
-	if (StChar.Empty() == 0)
-		throw - 1; // Исключение в случае ошибки 
+	if (!StChar.Empty()) {
+		throw - 1; // Если стек не пуст, выражение некорректно
+	}
 }
 
 double TCalc::Calc() {
-	string str = "(" + infix + ")";  // Добавляем скобки 
-	StNum.Clear();  // Очищаем стек для чисел
-	StChar.Clear();  // Очищаем стек для операторов
-
-	// Проверяем корректность выражения с помощью метода Check.
+	string str = "(" + infix + ")";
+	StNum.Clear();
+	StChar.Clear();
 	if (!StChar.Check(infix)) {
-		throw - 1;  // выбрасываем исключение
+		throw - 1;
 	}
-
-	
-	for (int i = 0; i < str.size(); i++) {
-		char tmp = str[i];  //текущий символ.
-
-		// Если символ — открывающая скобка, помещаем её в стек 
+	for (int i = 0; i < str.size(); i++)
+	{
+		char tmp = str[i];
 		if (tmp == '(')
 			StChar.Push(tmp);
-
-		// унарность
 		else if (str[i - 1] == '(' && tmp == '-')
-			str[i] = '_';  
-
-		// Если текущий символ — цифра, и перед ним идет символ _,
-		// то извлекаем число, учитывая его знак.
-		else if (i > 0 && tmp >= '0' && tmp <= '9' && str[i - 1] == '_') {
+			str[i] = '_';
+		else if (i > 0 && tmp >= '0' && tmp <= '9' && str[i - 1] == '_')
+		{
 			size_t idx;
-			double num = stod(&tmp, &idx);  // Преобразуем строку в число с плавающей точкой
-			StNum.Push(num * (-1.0));  // Добавляем отриц число
-			i += idx - 1;  // Пропускаем  обработанную часть 
+			double num = stod(&tmp, &idx);
+			StNum.Push(num * (-1.0));
+			i += idx - 1;
 		}
-
-		// Если символ — это цифра или точка (часть числа), преобразуем его в число и добавляем в стек.
 		else if (tmp >= '0' && tmp <= '9' || tmp == '.') {
 			size_t idx;
-			double num = stod(&tmp, &idx);  // Преобразуем строку в число.
-			StNum.Push(num);  // Добавляем число в стек.
-			i += idx - 1;  // Пропускаем уже обработанную часть строки.
+			double num = stod(&tmp, &idx);
+			StNum.Push(num);
+			i += idx - 1;
 		}
-
-		// Если встречаем закрывающую скобку, извлекаем операторы и выполняем операции.
-		else if (tmp == ')') {
-			char a = StChar.Pop();  // Извлекаем оператор из стека.
-
-			// Пока не встретим скобку
-			while (a != '(') {
-				double Num2 = StNum.Pop();  // Извлекаем два числа 
+		else if (tmp == ')')
+		{
+			char a = StChar.Pop();
+			while (a != '(')
+			{
+				double Num2 = StNum.Pop();
 				double Num1 = StNum.Pop();
-
-				
 				if (a == '+')
 					StNum.Push(Num1 + Num2);
 				if (a == '-')
 					StNum.Push(Num1 - Num2);
 				if (a == '*')
 					StNum.Push(Num1 * Num2);
-				if (a == '/') {
-					if (Num2 == 0)  // Проверка на деление на 0.
+				if (a == '/')
+				{
+					if (Num2 == 0)
 						throw - 1;
 					StNum.Push(Num1 / Num2);
 				}
-				if (a == '^') {  // Возведение в степень.
+				if (a == '^')
+				{
 					int p = pow(Num2, -1);
-					if (p % 2 == 0 && Num1 < 0)  // Проверка на невозможность возведения отрицательного числа в дробную степень.
+					if (p % 2 == 0 && Num1 < 0)
 						throw - 1;
-					StNum.Push(pow(Num1, Num2)); 
+					StNum.Push(pow(Num1, Num2));
 				}
-
-				a = StChar.Pop();  
+				a = StChar.Pop();
 			}
 		}
-
-		
-		else if (tmp == '+' || tmp == '-' || tmp == '*' || tmp == '/' || tmp == '^') {
-		
+		else if (tmp == '+' || tmp == '-' || tmp == '*' || tmp == '/' || tmp == '^')
+		{
 			while (Prior(StChar.Top()) >= Prior(tmp)) {
-				double Num2 = StNum.Pop();  // Извлекаем два числа из стека.
+				double Num2 = StNum.Pop();
 				double Num1 = StNum.Pop();
-				char a = StChar.Pop();  // Извлекаем оператор из стека.
-
-				
+				char a = StChar.Pop();
 				if (a == '+')
 					StNum.Push(Num1 + Num2);
 				if (a == '-')
 					StNum.Push(Num1 - Num2);
 				if (a == '*')
 					StNum.Push(Num1 * Num2);
-				if (a == '/') {
-					if (Num2 == 0)  // Проверка на деление на 0.
+				if (a == '/')
+				{
+					if (Num2 == 0)
 						throw - 1;
 					StNum.Push(Num1 / Num2);
 				}
-				if (a == '^') {  // Возведение в степень.
+				if (a == '^')
+				{
 					int p = pow(Num2, -1);
-					if (p % 2 == 0 && Num1 < 0)  // Проверка на невозможность возведения отрицательного числа в дробную степень.
+					if (p % 2 == 0 && Num1 < 0)
 						throw - 1;
-					StNum.Push(pow(Num1, Num2));  // Добавляем результат возведения в степень.
+					StNum.Push(pow(Num1, Num2));
 				}
 			}
-
-			// Добавляем текущий оператор в стек.
 			StChar.Push(tmp);
 		}
 	}
-
-	// Извлекаем результат из стека.
 	double a = StNum.Pop();
-	if (StNum.Empty() == 0)  // Если в стеке остались числа (ошибка в выражении).
+	if (StNum.Empty() == 0)
 		throw - 1;
-
-	return a;  // Возвращаем результат вычислений.
+	return a;
 }

@@ -10,9 +10,9 @@
 		s.Push(2);
 		//cout << s.Pop() << endl;
 		TCalc c;
-		c.SetInfix("-3+4");
-		c.ToPostfix() ;
-		double a = c.CalcPostfix();
+		c.SetInfix("(4-8+(9-6)^5+7/8+3*6)");
+		c.ToPostfix();
 		cout << c.CalcPostfix() << endl;
-	return 0;
+		
+		return 0;
 }
