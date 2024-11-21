@@ -8,7 +8,6 @@
 #include <math.h>
 #include <string>
 
-using namespace std;
 
 const int MAXS = 10000; // Максимальный размер стека
 
@@ -33,10 +32,10 @@ public:
 	bool Full() const;  // Проверка на полноту
 	T Top() const;      // Посмотреть верхний элемент
 	void Clear();       // Очистить стек
-	bool Check(string str); // Проверка скобочной последовательности
+	bool Check(std::string str); // Проверка скобочной последовательности
 
 	// Ввод элемента в стек
-	friend istream& operator>>(istream& in, TStack& s) {
+	friend std::istream& operator>>(std::istream& in, TStack& s) {
 		if (s.Full())
 			throw - 1;
 		Num++;
@@ -45,7 +44,7 @@ public:
 	}
 
 	// Вывод элемента из стека
-	friend ostream& operator<<(ostream& out, const TStack& s) {
+	friend std::ostream& operator<<(std::ostream& out, const TStack& s) {
 		if (s.Empty())
 			throw - 1;
 		out << s.pMem[s.Num];
@@ -162,7 +161,7 @@ void TStack<T>::Clear() {
 
 // Проверка правильности скобочной последовательности
 template <class T>
-bool TStack<T>::Check(string str) {
+bool TStack<T>::Check(std::string str) {
 	TStack<char> s; // Вспомогательный стек
 	for (char ch : str) {
 		if (ch == '(') // Если открывающая скобка, добавляем в стек
@@ -179,17 +178,17 @@ bool TStack<T>::Check(string str) {
 
 // Класс TCalc для вычисления выражений
 class TCalc {
-	string infix;     // Инфиксное выражение
-	string postfix;   // Постфиксное выражение
+	std::string infix;     // Инфиксное выражение
+	std::string postfix;   // Постфиксное выражение
 	TStack<double> StNum; // Стек для чисел
 	TStack<char> StChar;  // Стек для операций
 
 public:
 	TCalc();
-	void SetInfix(string _infix) { infix = _infix; }
-	void SetPostfix(string _postfix) { postfix = _postfix; }
-	string GetInfix() { return infix; }
-	string GetPostfix() { return postfix; }
+	void SetInfix(std::string _infix) { infix = _infix; }
+	void SetPostfix(std::string _postfix) { postfix = _postfix; }
+	std::string GetInfix() { return infix; }
+	std::string GetPostfix() { return postfix; }
 	void ToPostfix();         // Преобразование в постфикс
 	double CalcPostfix();     // Вычисление постфиксного выражения
 	double Calc();            // Вычисление инфиксного выражения
@@ -210,7 +209,7 @@ int TCalc::Prior(char op) {
 }
 double TCalc::CalcPostfix() {
 	StNum.Clear();
-	string number = "";
+	std::string number = "";
 	for (int i = 0; i < postfix.length(); i++) {
 		if (postfix[i] >= '0' && postfix[i] <= '9' || postfix[i] == '.' || postfix[i] == '_') {
 			if (postfix[i] == '_') { // Обработка отрицательного числа
@@ -259,7 +258,7 @@ double TCalc::CalcPostfix() {
 void TCalc::ToPostfix() {
 	postfix = "";
 	StChar.Clear();
-	string s = "(" + infix + ")";
+	std::string s = "(" + infix + ")";
 	if (!StChar.Check(infix)) {
 		throw - 1;
 	}
@@ -302,7 +301,7 @@ void TCalc::ToPostfix() {
 }
 
 double TCalc::Calc() {
-	string str = "(" + infix + ")";
+	std::string str = "(" + infix + ")";
 	StNum.Clear();
 	StChar.Clear();
 	if (!StChar.Check(infix)) {
@@ -318,13 +317,13 @@ double TCalc::Calc() {
 		else if (i > 0 && tmp >= '0' && tmp <= '9' && str[i - 1] == '_')
 		{
 			size_t idx;
-			double num = stod(&tmp, &idx);
+			double num = std::stod(&tmp, &idx);
 			StNum.Push(num * (-1.0));
 			i += idx - 1;
 		}
 		else if (tmp >= '0' && tmp <= '9' || tmp == '.') {
 			size_t idx;
-			double num = stod(&tmp, &idx);
+			double num = std::stod(&tmp, &idx);
 			StNum.Push(num);
 			i += idx - 1;
 		}
