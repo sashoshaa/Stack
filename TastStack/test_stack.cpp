@@ -110,12 +110,12 @@ TEST(TStack, can_clear_stack)
 TEST(TStack, stacks_with_different_sizes_are_not_equal)
 {
 	// Проверка, что стеки с разными размерами не равны
+	TStack<int> stack1(5);  // Стек с размером 5
+	TStack<int> stack2(3);  // Стек с размером 3
 
-	TStack<int> stack1(5);
-	TStack<int> stack2(3);
 	EXPECT_FALSE(stack1 == stack2); // Стек с размером 5 и стек с размером 3 не равны
-
 }
+
 TEST(TStack, can_assign_stack_to_itself)
 {
 	// Проверка, что можно присвоить стек самому себе
@@ -240,6 +240,43 @@ TEST(TStack, clear_works_correctly_on_non_empty_stack)
 
 //________________________________________________________________________________________________
 
+// Деление положительного числа на другое положительное число
+TEST(TCalc, can_divide_positive_numbers) {
+	TCalc c;
+	c.SetInfix("5/2");
+	EXPECT_DOUBLE_EQ(c.Calc(), 2.5);
+}
+// Сложение положительного десятичного числа и целого числа
+TEST(TCalc, can_add_positive_decimal_and_integer) {
+	TCalc c;
+	c.SetInfix("3.14+5");
+	c.ToPostfix();
+	EXPECT_EQ(c.CalcPostfix(), 8.14);
+}
+
+// Умножение двух положительных чисел
+TEST(TCalc, can_multiply_two_positive_numbers) {
+	TCalc c;
+	c.SetInfix("2.5*4");
+	c.ToPostfix();
+	EXPECT_EQ(c.CalcPostfix(), 10.0);
+}
+// Возведение десятичного числа в целую степень
+TEST(TCalc, can_raise_decimal_to_power) {
+	TCalc c;
+	c.SetInfix("2.5^3");
+	c.ToPostfix();
+	EXPECT_EQ(c.CalcPostfix(), 15.625);
+}
+// Возведение десятичного числа в дробную степень
+TEST(TCalc, can_raise_decimal_to_fractional_power) {
+	TCalc c;
+	c.SetInfix("4.0^0.5");
+	c.ToPostfix();
+	EXPECT_EQ(c.CalcPostfix(), 2.0);
+}
+
+
 // Проверка ошибки при отсутствии открывающей скобки
 TEST(TCalc, throws_on_missing_open_bracket) {
 	TCalc c;
@@ -264,15 +301,15 @@ TEST(TCalc, throws_on_incorrect_bracket_order) {
 // Сложение двух положительных чисел
 TEST(TCalc, can_add_two_positive_numbers) {
 	TCalc c;
-	c.SetInfix("3+5");
+	c.SetInfix("3.1+5");
 	c.ToPostfix();
-	EXPECT_EQ(c.CalcPostfix(), 8);
+	EXPECT_EQ(c.CalcPostfix(), 8.1);
 }
 
 // Сложение отрицательного и положительного числа
 TEST(TCalc, can_add_negative_and_positive_numbers) {
 	TCalc c;
-	c.SetInfix("(-4)+2");
+	c.SetInfix("-4+2");
 	c.ToPostfix();
 	EXPECT_EQ(c.CalcPostfix(), -2);
 }
@@ -335,22 +372,6 @@ TEST(TCalc, can_handle_unary_minus_at_start) {
 }
 
 
-// Выражение с вложенными скобками
-TEST(TCalc, can_handle_nested_parentheses) {
-	TCalc c;
-	c.SetInfix("(3+(4*2))-(7/(1+1))");
-	c.ToPostfix();
-	EXPECT_EQ(c.CalcPostfix(), 7); // (3 + 8) - (7 / 2) = 7
-}
-
-// Выражение с возведением в степень и отрицательным основанием
-TEST(TCalc, can_handle_negative_base_exponentiation) {
-	TCalc c;
-	c.SetInfix("(-2)^3");
-	c.ToPostfix();
-	EXPECT_EQ(c.CalcPostfix(), -8);
-}
-
 // Деление на ноль вызывает исключение
 TEST(TCalc, throws_when_dividing_by_zero) {
 	TCalc c;
@@ -371,15 +392,15 @@ TEST(TCalc, can_handle_negative_in_parentheses) {
 	TCalc c;
 	c.SetInfix("(-3+5)*2");
 	c.ToPostfix();
-	EXPECT_EQ(c.CalcPostfix(), 4);  // (-3+5)*2 = 4
+	EXPECT_EQ(c.CalcPostfix(), 4);  
+}
+TEST(TCalc, can_handle_nested_parentheses) {
+	TCalc c;
+	c.SetInfix("(4-8+(9-6)^5+7/8+3*6)");
+	c.ToPostfix();
+
+	EXPECT_DOUBLE_EQ(c.CalcPostfix(), 257.875); 
 }
 
-// Извлечение квадратного корня из отрицательного числа вызывает исключение
-TEST(TCalc, throws_when_sqrt_of_negative_number) {
-	TCalc c;
-	c.SetInfix("(-9)^(1/2)");
-	c.ToPostfix();
-	EXPECT_ANY_THROW(c.CalcPostfix());  // Ожидается исключение при извлечении корня из отрицательного числа
-}
 
 

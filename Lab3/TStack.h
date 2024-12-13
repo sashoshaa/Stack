@@ -8,252 +8,324 @@
 #include <math.h>
 #include <string>
 
+#define MAXS 1000 // Максимальный размер стека
 
-const int MAXS = 10000; // Максимальный размер стека
+// Структура для узла односвязного списка
+template <class T>
+struct Node {
+    T data;      // Данные
+    Node* next;  // Указатель на следующий элемент
+};
 
 // Шаблонный класс TStack (стек)
 template <class T>
 class TStack {
-	T* pMem;            // Массив для хранения элементов стека
-	int MaxSize, Num;   // Максимальный размер стека и текущий индекс
+private:
+    Node<T>* top;  // Указатель на верхний элемент стека
+    size_t maxSize; // Максимальный размер стека
+    size_t currentSize; // Текущий размер стека
 
 public:
-	TStack(int _MaxSize = 10);       // Конструктор
-	~TStack();                       // Деструктор
-	TStack(const TStack& s);         // Конструктор копирования
-	int GetSize() { return MaxSize; } // Получить размер стека
-	int GetStartIndex() { return Num; } // Получить текущий индекс
-	TStack& operator=(const TStack<T> s); // Оператор присваивания
-	bool operator==(const TStack& s) const; // Сравнение на равенство
-	bool operator!=(const TStack& s) const; // Сравнение на неравенство
-	T Pop();         // Извлечь элемент из стека
-	void Push(T val); // Добавить элемент в стек
-	bool Empty() const; // Проверка на пустоту
-	bool Full() const;  // Проверка на полноту
-	T Top() const;      // Посмотреть верхний элемент
-	void Clear();       // Очистить стек
-	bool Check(std::string str); // Проверка скобочной последовательности
+    TStack(size_t size = MAXS);          // Конструктор с параметром
+    ~TStack();                           // Деструктор
+    TStack(const TStack& s);             // Конструктор копирования
+    TStack& operator=(const TStack<T>& s); // Оператор присваивания
+    bool operator==(const TStack& s) const; // Сравнение на равенство
+    bool operator!=(const TStack& s) const; // Сравнение на неравенство
+    void Push(T val);                    // Добавить элемент в стек
+    T Pop();                             // Извлечь элемент из стека
+    bool Empty() const;                  // Проверка на пустоту
+    bool Full() const;                   // Проверка на полноту стека
+    T Top() const;                       // Посмотреть верхний элемент
+    void Clear();                        // Очистить стек
+    bool Check(const std::string& str);  // Проверка скобочной последовательности
 
-	// Ввод элемента в стек
-	friend std::istream& operator>>(std::istream& in, TStack& s) {
-		if (s.Full())
-			throw - 1;
-		Num++;
-		in >> s.pMem[s.Num];
-		return in;
-	}
+    // Ввод элемента в стек
+    friend std::istream& operator>>(std::istream& in, TStack& s) {
+        T value;
+        in >> value;
+        s.Push(value);
+        return in;
+    }
 
-	// Вывод элемента из стека
-	friend std::ostream& operator<<(std::ostream& out, const TStack& s) {
-		if (s.Empty())
-			throw - 1;
-		out << s.pMem[s.Num];
-		return out;
-	}
+    // Вывод элемента из стека
+    friend std::ostream& operator<<(std::ostream& out, const TStack& s) {
+        if (s.Empty())
+            throw std::out_of_range("Stack is empty");
+        out << s.top->data;
+        return out;
+    }
 };
 
-
-// Конструктор с заданием максимального размера стека
+// Конструктор с параметром для стека
 template <class T>
-TStack<T>::TStack(int _MaxSize) {
-	if (_MaxSize < 0 || _MaxSize > MAXS) // Проверка на корректный размер
-		throw - 1;
-	MaxSize = _MaxSize; // Устанавливаем максимальный размер
-	Num = -1;           // Инициализируем стек как пустой
-	pMem = new T[MaxSize]; // Выделяем память под массив
+TStack<T>::TStack(size_t size) : maxSize(size), currentSize(0), top(nullptr) {
+    if (size <= 0) {
+        throw std::invalid_argument("Stack size must be greater than zero");
+    }
+    if (size > MAXS) {
+        throw std::overflow_error("Stack size exceeds maximum allowed size");
+    }
+}
+
+// Деструктор
+template <class T>
+TStack<T>::~TStack() {
+    Clear();  // Освобождаем память, очищая стек
 }
 
 // Конструктор копирования
 template <class T>
-TStack<T>::TStack(const TStack<T>& s) {
-	if (s.MaxSize < 0 || s.MaxSize > MAXS || s.Num < -1 || s.Num >= s.MaxSize)
-		throw - 1;
-	MaxSize = s.MaxSize; // Копируем размер
-	Num = s.Num;         // Копируем индекс верхнего элемента
-	pMem = new T[MaxSize]; // Выделяем память
-	for (int i = 0; i <= Num; i++) // Копируем элементы
-		pMem[i] = s.pMem[i];
-}
+TStack<T>::TStack(const TStack<T>& s) : maxSize(s.maxSize), currentSize(s.currentSize), top(nullptr) {
+    if (s.top == nullptr) {
+        top = nullptr;
+    }
+    else {
+        // Копируем элементы в новый стек
+        Node<T>* current = s.top;
+        Node<T>* last = nullptr;
+        while (current != nullptr) {
+            Node<T>* newNode = new Node<T>;
+            newNode->data = current->data;
+            newNode->next = nullptr;
 
-// Деструктор: освобождаем память
-template <class T>
-TStack<T>::~TStack() {
-	delete[] pMem; // Удаляем массив
+            if (last == nullptr) {
+                top = newNode;
+            }
+            else {
+                last->next = newNode;
+            }
+
+            last = newNode;
+            current = current->next;
+        }
+    }
 }
 
 // Оператор присваивания
 template <class T>
-TStack<T>& TStack<T>::operator=(const TStack<T> s) {
-	if (this == &s) // Проверка на самоприсваивание
-		return *this;
-	if (MaxSize != s.MaxSize) { // Если размеры разные, перевыделяем память
-		MaxSize = s.MaxSize;
-		delete[] pMem;
-		pMem = new T[MaxSize];
-	}
-	Num = s.Num; // Копируем индекс
-	for (int i = 0; i <= Num; i++) // Копируем элементы
-		pMem[i] = s.pMem[i];
-	return *this;
+TStack<T>& TStack<T>::operator=(const TStack<T>& s) {
+    if (this == &s)  // Проверка на самоприсваивание
+        return *this;
+
+    Clear();  // Очищаем текущий стек
+
+    maxSize = s.maxSize;
+    currentSize = s.currentSize;
+
+    if (s.top == nullptr) {
+        top = nullptr;
+    }
+    else {
+        Node<T>* current = s.top;
+        Node<T>* last = nullptr;
+        while (current != nullptr) {
+            Node<T>* newNode = new Node<T>;
+            newNode->data = current->data;
+            newNode->next = nullptr;
+
+            if (last == nullptr) {
+                top = newNode;
+            }
+            else {
+                last->next = newNode;
+            }
+
+            last = newNode;
+            current = current->next;
+        }
+    }
+
+    return *this;
 }
 
 // Оператор сравнения на равенство
 template <class T>
-bool TStack<T>::operator==(const TStack& s) const {
-	if (this == &s) // Если сравниваем с самим собой
-		return true;
-	if (MaxSize != s.MaxSize || Num != s.Num) // Сравниваем размеры и индексы
-		return false;
-	for (int i = 0; i <= Num; i++) { // Сравниваем элементы
-		if (pMem[i] != s.pMem[i])
-			return false;
-	}
-	return true;
+bool TStack<T>::operator==(const TStack<T>& s) const {
+    // Сначала проверяем, что максимальные размеры стеков одинаковые
+    if (maxSize != s.maxSize) {
+        return false;  // Если максимальные размеры разные, стеки не равны
+    }
+
+    // Проверка размеров текущих стеков (например, они могут быть пустыми)
+    if (currentSize != s.currentSize) {
+        return false;  // Если текущие размеры разные, стеки не равны
+    }
+
+    // Теперь сравниваем элементы стеков
+    Node<T>* current1 = top;
+    Node<T>* current2 = s.top;
+    while (current1 != nullptr) {
+        if (current1->data != current2->data) {
+            return false;  // Если элементы различаются, стеки не равны
+        }
+        current1 = current1->next;
+        current2 = current2->next;
+    }
+
+    return true;  // Если все элементы совпали, стеки равны
 }
 
 // Оператор сравнения на неравенство
 template <class T>
-bool TStack<T>::operator!=(const TStack& s) const {
-	return !(*this == s); // Используем оператор равенства
-}
-
-// Проверка: пуст ли стек
-template <class T>
-bool TStack<T>::Empty() const {
-	return Num == -1; // Если индекс -1, стек пуст
-}
-
-// Проверка: полон ли стек
-template <class T>
-bool TStack<T>::Full() const {
-	return Num == MaxSize - 1; // Если индекс равен размеру - 1, стек полон
-}
-
-// Удаление элемента с вершины стека
-template <class T>
-T TStack<T>::Pop() {
-	if (Empty()) // Если стек пуст, ошибка
-		throw - 1;
-	return pMem[Num--]; // Возвращаем элемент и уменьшаем индекс
+bool TStack<T>::operator!=(const TStack<T>& s) const {
+    return !(*this == s);
 }
 
 // Добавление элемента на вершину стека
 template <class T>
 void TStack<T>::Push(T val) {
-	if (Full()) // Если стек полон, ошибка
-		throw - 1;
-	pMem[++Num] = val; // Увеличиваем индекс и добавляем элемент
+    if (Full()) {
+        throw std::overflow_error("Stack is full");
+    }
+    Node<T>* newNode = new Node<T>;
+    newNode->data = val;
+    newNode->next = top;  // Новый элемент указывает на старую вершину
+    top = newNode;        // Новый элемент становится верхним
+    currentSize++;        // Увеличиваем текущий размер
 }
 
-// Получение верхнего элемента без удаления
+// Удаление элемента с вершины стека
+template <class T>
+T TStack<T>::Pop() {
+    if (Empty())
+        throw std::out_of_range("Stack is empty");
+
+    Node<T>* temp = top;
+    T value = top->data;
+    top = top->next;  // Перемещаем вершину на следующий элемент
+    delete temp;      // Освобождаем память
+    currentSize--;    // Уменьшаем текущий размер
+    return value;
+}
+
+// Проверка на пустоту
+template <class T>
+bool TStack<T>::Empty() const {
+    return top == nullptr;
+}
+
+// Проверка на полноту стека
+template <class T>
+bool TStack<T>::Full() const {
+    return currentSize >= maxSize;
+}
+
+// Получение верхнего элемента
 template <class T>
 T TStack<T>::Top() const {
-	if (Empty()) // Если стек пуст, ошибка
-		throw - 1;
-	return pMem[Num]; // Возвращаем верхний элемент
+    if (Empty())
+        throw std::out_of_range("Stack is empty");
+    return top->data;
 }
 
 // Очистка стека
 template <class T>
 void TStack<T>::Clear() {
-	Num = -1; // Устанавливаем индекс в -1, делая стек пустым
+    while (!Empty()) {
+        Pop();  // Удаляем элементы до тех пор, пока стек не станет пустым
+    }
 }
 
-// Проверка правильности скобочной последовательности
+// Проверка скобочной последовательности
 template <class T>
-bool TStack<T>::Check(std::string str) {
-	TStack<char> s; // Вспомогательный стек
-	for (char ch : str) {
-		if (ch == '(') // Если открывающая скобка, добавляем в стек
-			s.Push('(');
-		else if (ch == ')') { // Если закрывающая, проверяем стек
-			if (s.Empty())
-				return false; // Если стек пуст, последовательность некорректна
-			s.Pop(); // Убираем последнюю открывающую скобку
-		}
-	}
-	return s.Empty(); // Если стек пуст, последовательность корректна
+bool TStack<T>::Check(const std::string& str) {
+    TStack<char> s;  // Вспомогательный стек для скобок
+    for (char ch : str) {
+        if (ch == '(') {  // Если открывающая скобка, добавляем в стек
+            s.Push('(');
+        }
+        else if (ch == ')') {  // Если закрывающая скобка, проверяем стек
+            if (s.Empty()) {
+                return false;  // Если стек пуст, последовательность некорректна
+            }
+            s.Pop();  // Убираем последнюю открывающую скобку
+        }
+    }
+    return s.Empty();  // Если стек пуст, последовательность корректна
 }
 
 
 // Класс TCalc для вычисления выражений
 class TCalc {
-	std::string infix;     // Инфиксное выражение
-	std::string postfix;   // Постфиксное выражение
-	TStack<double> StNum; // Стек для чисел
-	TStack<char> StChar;  // Стек для операций
+    std::string infix;     // Инфиксное выражение
+    std::string postfix;   // Постфиксное выражение
+    TStack<double> StNum;  // Стек для чисел
+    TStack<char> StChar;   // Стек для операций
 
 public:
-	TCalc();
-	void SetInfix(std::string _infix) { infix = _infix; }
-	void SetPostfix(std::string _postfix) { postfix = _postfix; }
-	std::string GetInfix() { return infix; }
-	std::string GetPostfix() { return postfix; }
-	void ToPostfix();         // Преобразование в постфикс
-	double CalcPostfix();     // Вычисление постфиксного выражения
-	double Calc();            // Вычисление инфиксного выражения
-	int Prior(char op);       // Приоритет операции
+    TCalc();               // Конструктор
+    void SetInfix(std::string _infix) { infix = _infix; }
+    void SetPostfix(std::string _postfix) { postfix = _postfix; }
+    std::string GetInfix() { return infix; }
+    std::string GetPostfix() { return postfix; }
+    void ToPostfix();         // Преобразование в постфикс
+    double CalcPostfix();     // Вычисление постфиксного выражения
+    double Calc();            // Вычисление инфиксного выражения
+    int Prior(char op);       // Приоритет операции
 };
 
 // Реализация методов TCalc
 TCalc::TCalc() : StNum(MAXS), StChar(MAXS) {}
 
 int TCalc::Prior(char op) {
-	if (op == '+' || op == '-')
-		return 1;
-	else if (op == '*' || op == '/')
-		return 2;
-	else if (op == '^')
-		return 3;
-	return 0;
+    if (op == '+' || op == '-')
+        return 1;
+    else if (op == '*' || op == '/')
+        return 2;
+    else if (op == '^')
+        return 3;
+    return 0;
 }
+
 double TCalc::CalcPostfix() {
-	StNum.Clear();
-	std::string number = "";
-	for (int i = 0; i < postfix.length(); i++) {
-		if (postfix[i] >= '0' && postfix[i] <= '9' || postfix[i] == '.' || postfix[i] == '_') {
-			if (postfix[i] == '_') { // Обработка отрицательного числа
-				number += '-';
-			}
-			else {
-				number += postfix[i];
-			}
-		}
-		else if (postfix[i] == ' ' && !number.empty()) {
-			// Когда число завершено, преобразуем его в double
-			StNum.Push(stod(number));
-			number = "";
-		}
-		else if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/' || postfix[i] == '^') {
-			double Num2 = StNum.Pop();
-			double Num1 = StNum.Pop();
-			if (postfix[i] == '+') {
-				StNum.Push(Num1 + Num2);
-			}
-			else if (postfix[i] == '-') {
-				StNum.Push(Num1 - Num2);
-			}
-			else if (postfix[i] == '*') {
-				StNum.Push(Num1 * Num2);
-			}
-			else if (postfix[i] == '/') {
-				if (Num2 == 0) throw - 1; // Деление на ноль
-				StNum.Push(Num1 / Num2);
-			}
-			else if (postfix[i] == '^') {
-				StNum.Push(pow(Num1, Num2));
-			}
-		}
-	}
-	if (!number.empty()) { // Если осталось число в конце
-		StNum.Push(stod(number));
-	}
-	double a = StNum.Pop();
-	if (!StNum.Empty()) {
-		throw - 1; // Некорректное выражение
-	}
-	return a;
+    StNum.Clear();
+    std::string number = "";
+    for (int i = 0; i < postfix.length(); i++) {
+        if (postfix[i] >= '0' && postfix[i] <= '9' || postfix[i] == '.' || postfix[i] == '_') {
+            if (postfix[i] == '_') { // Обработка отрицательного числа
+                number += '-';
+            }
+            else {
+                number += postfix[i];
+            }
+        }
+        else if (postfix[i] == ' ' && !number.empty()) {
+            // Когда число завершено, преобразуем его в double
+            StNum.Push(stod(number));
+            number = "";
+        }
+        else if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/' || postfix[i] == '^') {
+            double Num2 = StNum.Pop();
+            double Num1 = StNum.Pop();
+            if (postfix[i] == '+') {
+                StNum.Push(Num1 + Num2);
+            }
+            else if (postfix[i] == '-') {
+                StNum.Push(Num1 - Num2);
+            }
+            else if (postfix[i] == '*') {
+                StNum.Push(Num1 * Num2);
+            }
+            else if (postfix[i] == '/') {
+                if (Num2 == 0) throw - 1; // Деление на ноль
+                StNum.Push(Num1 / Num2);
+            }
+            else if (postfix[i] == '^') {
+                StNum.Push(pow(Num1, Num2));
+            }
+        }
+    }
+    if (!number.empty()) { // Если осталось число в конце
+        StNum.Push(stod(number));
+    }
+    double a = StNum.Pop();
+    if (!StNum.Empty()) {
+        throw - 1; // Некорректное выражение
+    }
+    return a;
 }
+
 
 void TCalc::ToPostfix() {
 	postfix = "";
