@@ -62,7 +62,7 @@ TStack<T>::TStack(int _MaxSize) {
 	Num = -1;           // Инициализируем стек как пустой
 	pMem = new T[MaxSize]; // Выделяем память под массив
 }
-
+  
 // Конструктор копирования
 template <class T>
 TStack<T>::TStack(const TStack<T>& s) {
